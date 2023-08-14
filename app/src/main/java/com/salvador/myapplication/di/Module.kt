@@ -15,6 +15,8 @@ import dagger.Provides
 import dagger.hilt.InstallIn
 import dagger.hilt.android.qualifiers.ApplicationContext
 import dagger.hilt.components.SingletonComponent
+import kotlinx.coroutines.CoroutineDispatcher
+import kotlinx.coroutines.Dispatchers
 import okhttp3.OkHttpClient
 import retrofit2.Retrofit
 import retrofit2.converter.gson.GsonConverterFactory
@@ -55,12 +57,15 @@ object AppModule {
             ))
             .build()
             .create(ApiService::class.java)
+    @Provides
+    fun provideDefaultDispatcher() : CoroutineDispatcher = Dispatchers.IO
 
     @Provides
     fun provideItemRepository(
         apiService: ApiService,
         dao: ItemDao,
-    ): ItemRepository = ItemRepositoryImpl(apiService, dao)
+        defaultDispatcher: CoroutineDispatcher
+    ): ItemRepository = ItemRepositoryImpl(apiService, dao, defaultDispatcher)
 
     @Provides
     fun provideItemDatabase(@ApplicationContext appContext: Context): ItemDatabase =
